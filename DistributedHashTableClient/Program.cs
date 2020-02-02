@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using static DistributedHashTable.HashTable;
+using Microsoft.Extensions.Logging.Console;
 
 namespace DistributedHashTableClient
 {
@@ -29,12 +30,14 @@ namespace DistributedHashTableClient
             serviceCollection.AddLogging(builder => builder.AddConsole());
             serviceCollection.AddSingleton(dhtClient);
             serviceCollection.AddSingleton<DHTFunctionalTest>();
-            var funcTest = serviceCollection.BuildServiceProvider().GetService<DHTFunctionalTest>();
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            var funcTest = serviceProvider.GetService<DHTFunctionalTest>();
             
             await funcTest.ThrowCases();
             await funcTest.StoreGet();
             await funcTest.RandomTest();
 
+            serviceProvider.Dispose();
         }
     }
 }

@@ -40,8 +40,8 @@ namespace DistributedHashTable
         {
             return new SystemInfo
             {
-                Identifier = context.Host,
-                KeyId = context.Host,
+                Identifier = Environment.MachineName,
+                KeyId = Environment.MachineName,
             };
         }
     }

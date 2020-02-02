@@ -94,6 +94,21 @@ Tumbled here, was looking for info on doing that, ssi, using local image from lo
 
 Find out that simply adding imagePullPolicy: Never do the trick.
 
+## Problem With Project References
+Either copy each project reference separate or copy the whole root folder.
+
+## Docker Image Rebuild
+On rebuild, image is not automatically picked up by Kubernetes.
+
+## Docker build fails
+One can just 'hook-up' to the failed step: `docker run -ti 9e9d24782450` by the thumbprint.
+
+## Console App Extensions Logging
+Not all log streams get flushed automatically! That is why, one needs to properly dispose of all objects at the end. 
+```
+    var serviceProvider = serviceCollection.BuildServiceProvider();
+    serviceProvider.Dispose();
+```
 ## Future Readings
 [Helm](https://helm.sh/) helps you manage Kubernetes applications — Helm Charts help you define, install, and upgrade even the most complex Kubernetes application.
 

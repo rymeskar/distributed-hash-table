@@ -18,6 +18,9 @@ kubectl logs --namespace=dht dht-5f55cf9c8d-mlb7z
 
 # Write out rolling logs (f) that matches selector app=
 kubectl logs -f --namespace=dht -lapp=dht
+
+# Restart and pull new image
+kubectl rollout restart deployment/dht --namespace=dht
 ```
 
 # Client

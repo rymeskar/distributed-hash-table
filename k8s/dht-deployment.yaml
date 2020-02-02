@@ -16,7 +16,7 @@ spec:
         app: dht
     spec:
       containers:
-      - image: dht_server
+      - image: dht_server:latest
         imagePullPolicy: Never
         name: dht
         env:

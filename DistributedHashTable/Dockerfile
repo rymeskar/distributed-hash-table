@@ -7,8 +7,12 @@ EXPOSE 5001
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1-buster AS build
 WORKDIR /src
+
+# If you actually do: COPY . ., it is easier to maintain, yet slower.
 COPY ["DistributedHashTable/DistributedHashTable.csproj", "DistributedHashTable/"]
+COPY ["Library/Library.csproj", "Library/"]
 RUN dotnet restore "DistributedHashTable/DistributedHashTable.csproj"
+RUN ls -la
 COPY . .
 WORKDIR "/src/DistributedHashTable"
 RUN dotnet build "DistributedHashTable.csproj" -c Release -o /app/build

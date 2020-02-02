@@ -20,7 +20,7 @@ namespace DistributedHashTable
             _logger.LogInformation("Goodbye");
             return Task.FromResult(new HelloReply
             {
-                Message = "Hello " + request.Name
+                Message = "Hello" + request.Name
             });
         }
     }

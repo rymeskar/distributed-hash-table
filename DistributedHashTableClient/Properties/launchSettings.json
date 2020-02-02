@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DistributedHashTableClient": {
+      "commandName": "Project",
+      "commandLineArgs": "5001"
+    }
+  }
+}

@@ -35,6 +35,7 @@ namespace DistributedHashTable
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapGrpcService<GreeterService>();
+                endpoints.MapGrpcService<DHTService>();
 
                 endpoints.MapGet("/", async context =>
                 {

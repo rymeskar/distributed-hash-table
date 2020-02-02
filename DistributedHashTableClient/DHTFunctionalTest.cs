@@ -39,16 +39,18 @@ namespace DistributedHashTableClient
         private async Task StoreGet(string key, string value)
         {
             await _client.StoreAsync(GRPCHelpers.CreateStoreRequest(key, value));
-            var response = await _client.GetAsync(GRPCHelpers.CreateGetRequest(Key));
+            var response = await _client.GetAsync(GRPCHelpers.CreateGetRequest(key));
 
             Log(response, value);
         }
 
         public async Task RandomTest()
         {
-            var tasks = Enumerable.Range(0, 100).Select(t => StoreGet(Guid.NewGuid().ToString(), Guid.NewGuid().ToString()));
+            var tasks = Enumerable.Range(0, 100).Select(t => StoreGet(Guid.NewGuid().ToString(), Guid.NewGuid().ToString())).ToList();
             await Task.WhenAll(tasks);
+            var allCompleted = tasks.All(t => t.IsCompleted);
         }
+
         public void Log(ValueResponse response, string originalValue)
         {
 
