@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dht
+  name: dht
+  namespace: dht
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: dht
+  template:
+    metadata:
+      labels:
+        app: dht
+    spec:
+      containers:
+      - image: dht_server
+        imagePullPolicy: Never
+        name: dht
+        env:
+        - name: ASPNETCORE_Kestrel__Certificates__Default__Path
+          value: "/app/aspnetapp.pfx"
+        - name: ASPNETCORE_Kestrel__Certificates__Default__Password
+          value: "password"
+        - name: ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS 
+          value: "true"

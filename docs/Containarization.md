@@ -84,7 +84,10 @@ Part of Properties/launchsettings.json, rest visible in this project's setup.
       "publishAllPorts": true
     }
 ```
+## Logging Problem
+Color control characters are weirdly encoded on Linux. Thus, it is recommended to:
 
+If you are using WebHostBuilder.CreateDefault setting ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS environment variable to true would disable colors too.
 ## Future Readings
 [Helm](https://helm.sh/) helps you manage Kubernetes applications — Helm Charts help you define, install, and upgrade even the most complex Kubernetes application.
 
