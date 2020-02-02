@@ -32,10 +32,10 @@ I have decided to use the following technologies for building this project:
 ## Plan
 - [x]  Setup Docker
 - [x]  Kubernetes multiple instances with a load balancer
-- [x] Single node with a backed file; both deletions, additions and retrievals.
+- [x]  Single node with a backed file; both deletions, additions and retrievals.
 - [ ]  Write tests. 
-- [ ]  Get from Azure
-- [ ]  Caching on top.
+- [x]  Get from Azure
+- [x]  Caching on top.
 - [ ]  Figure out how nodes will jump to the system!
 - [ ]  Multiple nodes at start, with linear routing.
 - [ ]  Nodes can be added

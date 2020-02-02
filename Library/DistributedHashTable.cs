@@ -11,31 +11,40 @@ namespace Library
         private readonly IKeySpaceHash _hasher;
         private readonly IKeySpaceManager _manager;
         private readonly IInMemoryHashTable _inMemoryHashTable;
-        private readonly IRemoteHashTable remoteHashTable;
+        private readonly IRemoteHashTable _remoteHashTable;
 
         public DistributedHashTable(IKeySpaceHash hasher, IKeySpaceManager manager, IInMemoryHashTable inMemoryHashTable, IRemoteHashTable remoteHashTable)
         {
             _hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _inMemoryHashTable = inMemoryHashTable ?? throw new ArgumentNullException(nameof(inMemoryHashTable));
-            this.remoteHashTable = remoteHashTable ?? throw new ArgumentNullException(nameof(remoteHashTable));
+            _remoteHashTable = remoteHashTable ?? throw new ArgumentNullException(nameof(remoteHashTable));
         }
 
         public async Task<Result> GetAsync(string key)
         {
             var actualKey = GetKey(key);
-            return await _inMemoryHashTable.GetAsync(actualKey);
+            try
+            {
+                return await _inMemoryHashTable.GetAsync(actualKey);
+            }
+            catch (KeyNotFoundException)
+            {
+                return await _remoteHashTable.GetAsync(actualKey);
+            }
         }
 
         public async Task RemoveAsync(string key)
         {
             var actualKey = GetKey(key);
+            _remoteHashTable.RemoveAsync(actualKey);
             await _inMemoryHashTable.RemoveAsync(actualKey);
         }
 
         public async Task StoreAsync(string key, string value)
         {
             var actualKey = GetKey(key);
+            _remoteHashTable.StoreAsync(actualKey, value);
             await _inMemoryHashTable.StoreAsync(actualKey, value);
         }
 
@@ -44,7 +53,7 @@ namespace Library
             var actualKey = _hasher.Hash(key);
             if (!_manager.CanHandle(actualKey))
             {
-                throw new InvalidOperationException("CannotHandle");
+                throw new InvalidOperationException("Cannot Handle");
             }
 
             return actualKey;

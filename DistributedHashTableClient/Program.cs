@@ -1,8 +1,11 @@
 ﻿using DistributedHashTable;
 using Grpc.Net.Client;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using static DistributedHashTable.HashTable;
 
 namespace DistributedHashTableClient
 {
@@ -20,6 +23,18 @@ namespace DistributedHashTableClient
             var client = new Greeter.GreeterClient(channel);
             var reply = await client.SayHelloAsync(new HelloRequest { Name = "Karel" });
             Console.WriteLine("Greeting: " + reply.Message);
+
+            var dhtClient = new HashTable.HashTableClient(channel); 
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging(builder => builder.AddConsole());
+            serviceCollection.AddSingleton(dhtClient);
+            serviceCollection.AddSingleton<DHTFunctionalTest>();
+            var funcTest = serviceCollection.BuildServiceProvider().GetService<DHTFunctionalTest>();
+            
+            await funcTest.ThrowCases();
+            await funcTest.StoreGet();
+            await funcTest.RandomTest();
+
         }
     }
 }

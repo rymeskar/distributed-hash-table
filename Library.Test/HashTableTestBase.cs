@@ -11,27 +11,30 @@ namespace Library.Test
     {
         public abstract IHashTable CreateHashTable();
 
-        protected Key Key = Key.Create(new byte[] { 1 });
-        protected string Value = "1";
+        protected Key KeyFactory() => Key.Create(new byte[] { (byte) new Random().Next(), (byte)new Random().Next() });
+        protected string ValueFactory() => Guid.NewGuid().ToString();
 
         [Test]
         public void ThrowCases()
         {
+            var key = KeyFactory();
             var hashTable = CreateHashTable();
-            Assert.ThrowsAsync<KeyNotFoundException>(() => hashTable.GetAsync(Key));
-            Assert.DoesNotThrow(() => hashTable.RemoveAsync(Key));
+            Assert.ThrowsAsync<KeyNotFoundException>(() => hashTable.GetAsync(key));
+            Assert.DoesNotThrow(() => hashTable.RemoveAsync(key));
         }
 
         [Test]
         public async Task StoreGetRemoveGet()
         {
             var hashTable = CreateHashTable();
+            var key = KeyFactory();
+            var value = ValueFactory();
 
-            await hashTable.StoreAsync(Key, Value);
-            var value = await hashTable.GetAsync(Key);
-            Assert.AreEqual(Value, value.Value);
-            await hashTable.RemoveAsync(Key);
-            Assert.ThrowsAsync<KeyNotFoundException>(() => hashTable.GetAsync(Key));
+            await hashTable.StoreAsync(key, value);
+            var actualValue = await hashTable.GetAsync(key);
+            Assert.AreEqual(value, actualValue.Value);
+            await hashTable.RemoveAsync(key);
+            Assert.ThrowsAsync<KeyNotFoundException>(() => hashTable.GetAsync(key));
         }
     }
 }
