@@ -27,8 +27,11 @@ Microsoft has created [many different images](https://hub.docker.com/_/microsoft
 docker build -f Dockerfile -t hello-python:latest .
 # lists images
 docker image ls
-# If you really, really want to run locally
-docker run -it --rm --name aspnetcore_sample aspnetapp
+# If you really, really want to run locally.
+# i is interactive, t Allocate a pseudo-TTY; 
+# rm Automatically remove the container when it exits
+# name Assign a name to the container
+docker run -it --rm --name sample aspnetapp
 ```
 
 ## Kubernetes

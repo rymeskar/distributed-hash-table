@@ -17,4 +17,10 @@
     <PackageReference Include="Microsoft.VisualStudio.Azure.Kubernetes.Tools.Targets" Version="1.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="aspnetapp.pfx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

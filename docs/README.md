@@ -30,17 +30,18 @@ I have decided to use the following technologies for building this project:
 * Sending logs and telemetry to Azure App Insights
 
 ## Plan
-* Kubernetes multiple instances with a load balancer
-* Single node with a backed file; both deletions, additions and retrievals.
-* Write tests. 
-* Caching on top.
-* Figure out how nodes will jump to the system!
-* Multiple nodes at start, with linear routing.
-* Nodes can be added
-* Nodes can be deleted
-* Improved routing (fingerprint)
-* Deploy to Azure
-* Easy script to showcase
-* Write up.
+- [x]  Setup Docker
+- [ ]  Kubernetes multiple instances with a load balancer
+- [ ] Single node with a backed file; both deletions, additions and retrievals.
+- [ ]  Write tests. 
+- [ ] Caching on top.
+- [ ]  Figure out how nodes will jump to the system!
+- [ ]  Multiple nodes at start, with linear routing.
+- [ ]  Nodes can be added
+- [ ]  Nodes can be deleted
+- [ ]  Improved routing (fingerprint)
+- [ ]  Deploy to Azure
+- [ ]  Easy script to showcase
+- [ ]  Write up.
 
 hash (ip/host+port  )

@@ -16,10 +16,9 @@ namespace DistributedHashTableClient
                 HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
             var httpClient = new HttpClient(httpClientHandler);
 
-            using var channel = GrpcChannel.ForAddress("https://localhost:32794", new GrpcChannelOptions { HttpClient = httpClient });
+            using var channel = GrpcChannel.ForAddress($"https://localhost:{args[0]}", new GrpcChannelOptions { HttpClient = httpClient });
             var client = new Greeter.GreeterClient(channel);
-            var reply = await client.SayHelloAsync(
-                              new HelloRequest { Name = "Karel" });
+            var reply = await client.SayHelloAsync(new HelloRequest { Name = "Karel" });
             Console.WriteLine("Greeting: " + reply.Message);
         }
     }

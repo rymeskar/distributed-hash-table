@@ -15,10 +15,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Protos\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Protobuf Include="..\DistributedHashTable\Protos\greet.proto">
       <Link>Protos\greet.proto</Link>
     </Protobuf>
