@@ -88,6 +88,12 @@ Part of Properties/launchsettings.json, rest visible in this project's setup.
 Color control characters are weirdly encoded on Linux. Thus, it is recommended to:
 
 If you are using WebHostBuilder.CreateDefault setting ASPNETCORE_LOGGING__CONSOLE__DISABLECOLORS environment variable to true would disable colors too.
+
+## Local Image Repository
+Tumbled here, was looking for info on doing that, ssi, using local image from local docker registry for a deployment in Docker for Mac K8s.
+
+Find out that simply adding imagePullPolicy: Never do the trick.
+
 ## Future Readings
 [Helm](https://helm.sh/) helps you manage Kubernetes applications — Helm Charts help you define, install, and upgrade even the most complex Kubernetes application.
 

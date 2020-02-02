@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option csharp_namespace = "DistributedHashTable";
+
+package greet;
+
+service HashTable {
+  rpc Store (StoreRequest) returns (SystemInfo);
+  rpc Get (GetRequest) returns (ValueResponse);
+
+}
+
+message StoreRequest {
+  string key = 1;
+  string value = 2;
+}
+
+message GetRequest {
+  string key = 1;
+}
+
+message ValueResponse {
+  string value = 1;
+  SystemInfo info = 2;
+}
+message Response {
+  string message = 1;
+}
+
+message SystemInfo {
+  string identifier = 1;
+  string keyId = 2;
+}
