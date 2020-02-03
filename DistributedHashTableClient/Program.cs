@@ -5,8 +5,8 @@ using System;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using static DistributedHashTable.HashTable;
 using Microsoft.Extensions.Logging.Console;
+using DistributedHashTable.DHT;
 
 namespace DistributedHashTableClient
 {

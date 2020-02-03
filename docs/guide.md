@@ -21,6 +21,9 @@ kubectl logs -f --namespace=dht -lapp=dht
 
 # Restart and pull new image
 kubectl rollout restart deployment/dht --namespace=dht
+
+# Delete a pod
+kubectl delete pod dnsutils
 ```
 
 # Client

@@ -109,6 +109,15 @@ Not all log streams get flushed automatically! That is why, one needs to properl
     var serviceProvider = serviceCollection.BuildServiceProvider();
     serviceProvider.Dispose();
 ```
+
+## Named Services
+Named services were quite confusing, especially for pods. Pods in reality don't have any DNS name. On the other hand, can be within the namespace be referred to just with their familiar name.
+
+That is why I learned how to setup a debugging dns querier. Important: queries always bound to namespace.
+
+```
+kubectl exec --namespace=dht -ti dnsutils -- nslookup "dht"
+```
 ## Future Readings
 [Helm](https://helm.sh/) helps you manage Kubernetes applications — Helm Charts help you define, install, and upgrade even the most complex Kubernetes application.
 

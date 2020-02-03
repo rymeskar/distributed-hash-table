@@ -1,11 +1,12 @@
 ﻿using DistributedHashTable;
+using DistributedHashTable.DHT;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static DistributedHashTable.HashTable;
+using static DistributedHashTable.DHT.HashTable;
 
 namespace DistributedHashTableClient
 {

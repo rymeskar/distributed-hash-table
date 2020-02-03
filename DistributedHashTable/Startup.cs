@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DistributedHashTable.Services;
+using k8s;
 using Library;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -18,10 +20,17 @@ namespace DistributedHashTable
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddGrpc();
-            services.AddApplicationInsightsTelemetry();
+            //services.AddApplicationInsightsTelemetry();
             services.AddDistributedHashTable();
+            services.AddSingleton<IHostedService, ConsistencyService>();
+            ConfigureKubernetes(services);
         }
 
+        public void ConfigureKubernetes(IServiceCollection services)
+        {
+            services.AddSingleton<IKubernetes>(new Kubernetes(KubernetesClientConfiguration.BuildDefaultConfig()));
+            services.AddSingleton<IDnsResolution, DnsResolution>();
+        }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -36,7 +45,8 @@ namespace DistributedHashTable
             {
                 endpoints.MapGrpcService<GreeterService>();
                 endpoints.MapGrpcService<DHTService>();
-
+                endpoints.MapGrpcService<BrokerService>();
+                    
                 endpoints.MapGet("/", async context =>
                 {
                     await context.Response.WriteAsync("Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");

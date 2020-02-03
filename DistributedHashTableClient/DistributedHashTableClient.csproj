@@ -24,6 +24,9 @@
     <Protobuf Include="..\DistributedHashTable\Protos\dht.proto">
       <Link>Protos\dht.proto</Link>
     </Protobuf>
+    <Protobuf Include="..\DistributedHashTable\Protos\broker.proto">
+      <Link>Protos\broker.proto</Link>
+    </Protobuf>
   </ItemGroup>
 
 </Project>

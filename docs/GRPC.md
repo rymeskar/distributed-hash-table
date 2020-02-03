@@ -5,3 +5,6 @@ Do not care about InteliSense mentioning errors.
 The base classes will get auto-generated on usage.
 # Register New Endpoint
 `endpoints.MapGrpcService<GreeterService>();` in Startup.
+# Automatic Generation of included files does not work
+`import 'bla.proto'`
+# Missing interface + investigate DI!

@@ -15,6 +15,7 @@ namespace Library
             serviceCollection.AddSingleton<IKeySpaceManager, KeySpaceManager>();
             serviceCollection.AddSingleton<IRemoteHashTable, RemoteHashTable>();
             serviceCollection.AddSingleton<IInMemoryHashTable, InMemoryHashTable>();
+            serviceCollection.AddSingleton<INodeIdentifierFactory, NodeIdentifierFactory>();
 
             return serviceCollection;
         }

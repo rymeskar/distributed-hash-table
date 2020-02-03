@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+option csharp_namespace = "DistributedHashTable.Broker";
+
+package greet;
+
+service Broker {
+  rpc Ping (SystemInfo) returns (SystemInfo);
+}
+
+message SystemInfo {
+  string identifier = 1;
+  string keyId = 2;
+}

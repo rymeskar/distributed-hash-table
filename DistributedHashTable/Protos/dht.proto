@@ -1,8 +1,9 @@
 syntax = "proto3";
 
-option csharp_namespace = "DistributedHashTable";
+option csharp_namespace = "DistributedHashTable.DHT";
 
 package greet;
+
 
 service HashTable {
   rpc Store (StoreRequest) returns (SystemInfo);

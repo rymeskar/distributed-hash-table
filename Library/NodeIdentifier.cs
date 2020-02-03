@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Library.KeySpace;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,11 +7,14 @@ namespace Library
 {
     public class NodeIdentifier
     {
-        public string Id { get; }
+        public string Name { get; }
 
-        public NodeIdentifier(string id)
+        public Key Key { get; }
+
+        public NodeIdentifier(string name, Key key)
         {
-            Id = id ?? throw new ArgumentNullException(nameof(id));
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Key = key ?? throw new ArgumentNullException(nameof(key));
         }
     }
 }

@@ -33,7 +33,7 @@ I have decided to use the following technologies for building this project:
 - [x]  Setup Docker
 - [x]  Kubernetes multiple instances with a load balancer
 - [x]  Single node with a backed file; both deletions, additions and retrievals.
-- [ ]  Write tests. 
+- [x]  Write tests. 
 - [x]  Get from Azure
 - [x]  Caching on top.
 - [ ]  Figure out how nodes will jump to the system!
@@ -43,6 +43,6 @@ I have decided to use the following technologies for building this project:
 - [ ]  Improved routing (fingerprint)
 - [ ]  Deploy to Azure
 - [ ]  Easy script to showcase
-- [ ]  Write up.
+- [ ]  Write up. (talk about named services)
 
 hash (ip/host+port  )
