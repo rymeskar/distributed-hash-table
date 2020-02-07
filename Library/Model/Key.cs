@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Library.KeySpace
+namespace Library.Model
 {
     public class Key : IComparable<Key>, IEquatable<Key>
     {
@@ -18,7 +18,7 @@ namespace Library.KeySpace
 
         public static Key Create(byte[] value)
         {
-            return new Key(value, System.Convert.ToBase64String(value));
+            return new Key(value, Convert.ToBase64String(value));
         }
 
         public int CompareTo(Key other)

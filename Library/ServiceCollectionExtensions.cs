@@ -12,7 +12,7 @@ namespace Library
         {
             serviceCollection.AddSingleton<IDistributedHashTable, DistributedHashTable>();
             serviceCollection.AddSingleton<IKeySpaceHash, KeySpaceHash>();
-            serviceCollection.AddSingleton<IKeySpaceManager, KeySpaceManager>();
+            serviceCollection.AddSingleton<IKeySpaceManager, LocalKeySpaceManager>();
             serviceCollection.AddSingleton<IRemoteHashTable, RemoteHashTable>();
             serviceCollection.AddSingleton<IInMemoryHashTable, InMemoryHashTable>();
             serviceCollection.AddSingleton<INodeIdentifierFactory, NodeIdentifierFactory>();

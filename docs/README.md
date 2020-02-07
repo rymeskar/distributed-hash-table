@@ -45,4 +45,5 @@ I have decided to use the following technologies for building this project:
 - [ ]  Easy script to showcase
 - [ ]  Write up. (talk about named services)
 
-hash (ip/host+port  )
+
+When I 
