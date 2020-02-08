@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using Library.Model;
+using System.Threading.Tasks;
 
 namespace Library
 {
     public interface IDistributedHashTable
     {
-        Task<Result> GetAsync(string key);
-        Task RemoveAsync(string key);
-        Task StoreAsync(string key, string value);
+        Task<DistributedResult> GetAsync(string key);
+        Task<NodeIdentifier> RemoveAsync(string key);
+        Task<NodeIdentifier> StoreAsync(string key, string value);
     }
 }

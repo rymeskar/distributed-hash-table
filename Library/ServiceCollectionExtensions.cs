@@ -1,4 +1,5 @@
-﻿using Library.KeySpace;
+﻿using Library.Broker;
+using Library.KeySpace;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
@@ -13,10 +14,13 @@ namespace Library
             serviceCollection.AddSingleton<IDistributedHashTable, DistributedHashTable>();
             serviceCollection.AddSingleton<IKeySpaceHash, KeySpaceHash>();
             serviceCollection.AddSingleton<IKeySpaceManager, LocalKeySpaceManager>();
-            serviceCollection.AddSingleton<IRemoteHashTable, RemoteHashTable>();
+            serviceCollection.AddSingleton<IBackupHashTable, RemoteHashTable>();
             serviceCollection.AddSingleton<IInMemoryHashTable, InMemoryHashTable>();
             serviceCollection.AddSingleton<INodeIdentifierFactory, NodeIdentifierFactory>();
 
+            serviceCollection.AddSingleton<IKeySpaceManager, DistributedKeySpaceManager>();
+            serviceCollection.AddSingleton<IClusterManager, ClusterManager>();
+            serviceCollection.AddSingleton<IClusterBrokerService, ClusterBrokerService>();
             return serviceCollection;
         }
     }

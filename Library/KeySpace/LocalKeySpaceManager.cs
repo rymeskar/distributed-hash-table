@@ -1,18 +1,32 @@
 ﻿using Library.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 
 namespace Library.KeySpace
 {
+    [ExcludeFromCodeCoverage]
     public class LocalKeySpaceManager : IKeySpaceManager
     {
-        public bool CanHandle(Key key)
+        private NodeIdentifier _nodeIdentifier;
+
+        public LocalKeySpaceManager(INodeIdentifierFactory nodeIdentifierFactory)
         {
-            return true;
+            _nodeIdentifier = nodeIdentifierFactory.Create();
         }
 
-        public Address HandlingAddress(Key key)
+        public void AddNode(NodeIdentifier node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public NodeIdentifier GetHandlingNode(Key key)
+        {
+            return _nodeIdentifier;
+        }
+
+        public void RemoveNodes(IList<NodeIdentifier> node)
         {
             throw new NotImplementedException();
         }

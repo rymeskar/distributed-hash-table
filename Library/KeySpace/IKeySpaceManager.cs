@@ -1,11 +1,14 @@
 ﻿using Library.Model;
+using System.Collections.Generic;
 
 namespace Library.KeySpace
 {
     public interface IKeySpaceManager
     {
-        bool CanHandle(Key key);
+        NodeIdentifier GetHandlingNode(Key key);
 
-        Address HandlingAddress(Key key);
+        void AddNode(NodeIdentifier node);
+
+        void RemoveNodes(IList<NodeIdentifier> node);
     }
 }

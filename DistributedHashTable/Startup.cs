@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DistributedHashTable.Services;
 using k8s;
 using Library;
+using Library.Broker;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -29,7 +30,9 @@ namespace DistributedHashTable
         public void ConfigureKubernetes(IServiceCollection services)
         {
             services.AddSingleton<IKubernetes>(new Kubernetes(KubernetesClientConfiguration.BuildDefaultConfig()));
-            services.AddSingleton<IDnsResolution, DnsResolution>();
+            services.AddSingleton<IAddressTranslation, KubernetesAddressTranslation>();
+            services.AddSingleton<ILivenessCheck, KubernetesLivenessCheck>();
+            services.AddSingleton<IRemoteNodeHashTable, KubernetesNodeHashTable>();
         }
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

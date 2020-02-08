@@ -16,9 +16,14 @@ namespace Library.Model
             Base64EncodedKey = base64EncodedKey ?? throw new ArgumentNullException(nameof(base64EncodedKey));
         }
 
-        public static Key Create(byte[] value)
+        public static Key Create(params byte[] value)
         {
             return new Key(value, Convert.ToBase64String(value));
+        }
+
+        public static Key Create(string base64encodedKey)
+        {
+            return new Key(Convert.FromBase64String(base64encodedKey), base64encodedKey);
         }
 
         public int CompareTo(Key other)
@@ -54,6 +59,11 @@ namespace Library.Model
         public override string ToString()
         {
             return Base64EncodedKey;
+        }
+
+        public override int GetHashCode()
+        {
+            return Base64EncodedKey.GetHashCode();
         }
     }
 }

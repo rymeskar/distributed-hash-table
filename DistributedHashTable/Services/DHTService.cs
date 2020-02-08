@@ -13,13 +13,11 @@ namespace DistributedHashTable
     {
         private readonly IDistributedHashTable _hashTable;
         private readonly ILogger<DHTService> _logger;
-        private readonly NodeIdentifier _identifier;
 
-        public DHTService(IDistributedHashTable hashTable, ILogger<DHTService> logger, INodeIdentifierFactory factory)
+        public DHTService(IDistributedHashTable hashTable, ILogger<DHTService> logger)
         {
             _hashTable = hashTable ?? throw new ArgumentNullException(nameof(hashTable));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _identifier = factory.Create();
         }
 
         public async override Task<ValueResponse> Get(GetRequest request, ServerCallContext context)
@@ -28,23 +26,23 @@ namespace DistributedHashTable
 
             return new ValueResponse()
             {
-                Info = GetSystemInfo(),
-                Value = value.Value
+                Info = GetSystemInfo(value.Node),
+                Value = value.Result.Value
             };
         }
 
         public async override Task<SystemInfo> Store(StoreRequest request, ServerCallContext context)
         {
-            await _hashTable.StoreAsync(request.Key, request.Value);
-            return GetSystemInfo();
+            var node = await _hashTable.StoreAsync(request.Key, request.Value);
+            return GetSystemInfo(node);
         }
 
-        private SystemInfo GetSystemInfo()
+        private SystemInfo GetSystemInfo(NodeIdentifier node)
         {
             return new SystemInfo
             {
-                Identifier = _identifier.Name,
-                KeyId = _identifier.Key.Base64EncodedKey
+                Identifier = node.Name,
+                KeyId = node.Key.Base64EncodedKey
             };
         }
     }

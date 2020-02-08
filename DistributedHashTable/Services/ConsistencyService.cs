@@ -3,6 +3,8 @@ using Grpc.Core;
 using Grpc.Net.Client;
 using k8s;
 using Library;
+using Library.Broker;
+using Library.Model;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -18,14 +20,15 @@ namespace DistributedHashTable.Services
     {
         private ILogger<ConsistencyService> _logger;
         private NodeIdentifier _identifier;
-        private IDnsResolution _dnsResolution;
+        private IClusterBrokerService _clusterBrokerService;
 
-        public ConsistencyService(ILogger<ConsistencyService> logger, INodeIdentifierFactory factory, IDnsResolution dnsResolution)
+        public ConsistencyService(ILogger<ConsistencyService> logger, INodeIdentifierFactory factory, IClusterBrokerService clusterBrokerService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _identifier = factory.Create();
-            _dnsResolution = dnsResolution;
+            _clusterBrokerService = clusterBrokerService;
         }
+
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             // TODO: Init somewhere else!
@@ -39,16 +42,15 @@ namespace DistributedHashTable.Services
             {
                 try
                 {
+                    await _clusterBrokerService.KeepUpToDate();
+
                     var response = await brokerClient.PingAsync(GetSystemInfo());
                     _logger.LogInformation($"I am {_identifier.Name} and got response by {response.Identifier}");
                     
-                    var ip = await _dnsResolution.ResolveAsync(response.Identifier);
-
-
-                    using var pingChannel = GrpcChannel.ForAddress($"https://{ip}:5001", new GrpcChannelOptions { HttpClient = httpClient });
-                    var pingClinet = new Greeter.GreeterClient(pingChannel);
-                    var pingResponse = await pingClinet.SayHelloAsync(new HelloRequest());
-                    _logger.LogInformation($"I am {_identifier.Name} and got ping back with message\"{pingResponse.Message}\"");
+                    if (await _clusterBrokerService.TryAddNode(GetNode(response)))
+                    {
+                        _logger.LogInformation($"Consistency added a new node: {response.Identifier}");
+                    }
                 }
                 catch (Exception e)
                 {
@@ -66,6 +68,11 @@ namespace DistributedHashTable.Services
                 Identifier = _identifier.Name,
                 KeyId = _identifier.Key.Base64EncodedKey
             };
+        }
+
+        private NodeIdentifier GetNode(SystemInfo info)
+        {
+            return new NodeIdentifier(info.Identifier, Key.Create(info.KeyId));
         }
     }
 }

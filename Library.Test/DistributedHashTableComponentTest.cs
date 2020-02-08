@@ -31,7 +31,7 @@ namespace Library.Test
 
             await hashTable.StoreAsync(Key, Value);
             var value = await hashTable.GetAsync(Key);
-            Assert.AreEqual(Value, value.Value);
+            Assert.AreEqual(Value, value.Result.Value);
             await hashTable.RemoveAsync(Key);
             Assert.ThrowsAsync<KeyNotFoundException>(() => hashTable.GetAsync(Key));
         }

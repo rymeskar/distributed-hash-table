@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace Library
 {
-    public interface IRemoteHashTable : IHashTable { }
+    public interface IBackupHashTable : IHashTable { }
 
 
-    public class RemoteHashTable : IRemoteHashTable
+    public class RemoteHashTable : IBackupHashTable
     {
         private class CosmosDbItem
         {

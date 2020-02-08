@@ -1,5 +1,6 @@
 ﻿using Library.KeySpace;
 using Library.Model;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,52 +13,106 @@ namespace Library
         private readonly IKeySpaceHash _hasher;
         private readonly IKeySpaceManager _manager;
         private readonly IInMemoryHashTable _inMemoryHashTable;
-        private readonly IRemoteHashTable _remoteHashTable;
+        private readonly IBackupHashTable _backupHashTable;
+        private readonly IRemoteNodeHashTable _remoteNodeHashTable;
+        private readonly ILogger<DistributedHashTable> _logger;
+        private readonly NodeIdentifier _currentNode;
 
-        public DistributedHashTable(IKeySpaceHash hasher, IKeySpaceManager manager, IInMemoryHashTable inMemoryHashTable, IRemoteHashTable remoteHashTable)
+        public DistributedHashTable(IKeySpaceHash hasher,
+            IKeySpaceManager manager,
+            IInMemoryHashTable inMemoryHashTable, 
+            IBackupHashTable backupHashTable,
+            IRemoteNodeHashTable remoteNodeHashTable,
+            INodeIdentifierFactory nodeIdentifierFactory,
+            ILogger<DistributedHashTable> logger)
         {
             _hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _inMemoryHashTable = inMemoryHashTable ?? throw new ArgumentNullException(nameof(inMemoryHashTable));
-            _remoteHashTable = remoteHashTable ?? throw new ArgumentNullException(nameof(remoteHashTable));
+            _backupHashTable = backupHashTable ?? throw new ArgumentNullException(nameof(backupHashTable));
+            _remoteNodeHashTable = remoteNodeHashTable;
+            _logger = logger;
+            _currentNode = nodeIdentifierFactory.Create();
         }
 
-        public async Task<Result> GetAsync(string key)
+        // TODO: fix when remote is out -- force update
+        // TODO: cache expiration
+        // TODO: liveness cache
+        // TODO: DNS cache prepopulation
+        public async Task<DistributedResult> GetAsync(string key)
         {
-            var actualKey = GetKey(key);
-            try
+            (var node, var actualKey) = GetAddressableKey(key);
+
+            if (CanHandle(node))
             {
-                return await _inMemoryHashTable.GetAsync(actualKey);
+                Result retVal;
+                try
+                {
+                    retVal = await _inMemoryHashTable.GetAsync(actualKey);
+                }
+                catch (KeyNotFoundException)
+                {
+                    retVal = await _backupHashTable.GetAsync(actualKey);
+                    await _inMemoryHashTable.StoreAsync(actualKey, retVal.Value);
+                }
+
+                _logger.LogInformation($"{key} retrieved from {retVal.MemorySource}.");
+
+                return new DistributedResult(retVal, node);
             }
-            catch (KeyNotFoundException)
+            else
             {
-                return await _remoteHashTable.GetAsync(actualKey);
+                var retVal = await _remoteNodeHashTable.GetAsync(key);
+                _logger.LogInformation($"{key} retrieved from {retVal.Node}");
+                return retVal;
             }
         }
 
-        public async Task RemoveAsync(string key)
+        public async Task<NodeIdentifier> RemoveAsync(string key)
         {
-            var actualKey = GetKey(key);
-            _remoteHashTable.RemoveAsync(actualKey);
-            await _inMemoryHashTable.RemoveAsync(actualKey);
+            (var node, var actualKey) = GetAddressableKey(key);
+            if (CanHandle(node))
+            {
+                // TODO: need to ensure atomicity of the below two requests.
+                await _backupHashTable.RemoveAsync(actualKey);
+                await _inMemoryHashTable.RemoveAsync(actualKey);
+            }
+            else
+            {
+                await _remoteNodeHashTable.RemoveAsync(key);
+            }
+
+            return node;
         }
 
-        public async Task StoreAsync(string key, string value)
+        public async Task<NodeIdentifier> StoreAsync(string key, string value)
         {
-            var actualKey = GetKey(key);
-            _remoteHashTable.StoreAsync(actualKey, value);
-            await _inMemoryHashTable.StoreAsync(actualKey, value);
+            (var node, var actualKey) = GetAddressableKey(key);
+
+            if (CanHandle(node))
+            {
+                // TODO: need to ensure atomicity of the below two requests.
+                _backupHashTable.StoreAsync(actualKey, value);
+                await _inMemoryHashTable.StoreAsync(actualKey, value);
+            }
+            else
+            {
+                await _remoteNodeHashTable.StoreAsync(key, value);
+            }
+
+            return node;
         }
 
-        private Key GetKey(string key)
+        private bool CanHandle(NodeIdentifier node)
+        {
+            return node.Equals(_currentNode);
+        }
+        private (NodeIdentifier, Key) GetAddressableKey(string key)
         {
             var actualKey = _hasher.Hash(key);
-            if (!_manager.CanHandle(actualKey))
-            {
-                throw new InvalidOperationException("Cannot Handle");
-            }
+            var node = _manager.GetHandlingNode(actualKey);
 
-            return actualKey;
+            return (node, actualKey);
         }
     }
 }
