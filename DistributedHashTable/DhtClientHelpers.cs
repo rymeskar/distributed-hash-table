@@ -1,12 +1,8 @@
-﻿using DistributedHashTable;
-using DistributedHashTable.DHT;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using DistributedHashTable.DHT;
 
-namespace DistributedHashTableClient
+namespace DistributedHashTable
 {
-    public static class GRPCHelpers
+    public static class DhtClientHelpers
     {
         public static GetRequest CreateGetRequest(string key)
         {

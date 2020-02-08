@@ -28,7 +28,7 @@ namespace DistributedHashTableClient
         {
             try
             {
-                await _client.GetAsync(GRPCHelpers.CreateGetRequest(Key));
+                await _client.GetAsync(DhtClientHelpers.CreateGetRequest(Key));
             }
             catch (Exception e)
             {
@@ -39,8 +39,8 @@ namespace DistributedHashTableClient
 
         private async Task StoreGet(string key, string value)
         {
-            await _client.StoreAsync(GRPCHelpers.CreateStoreRequest(key, value));
-            var response = await _client.GetAsync(GRPCHelpers.CreateGetRequest(key));
+            await _client.StoreAsync(DhtClientHelpers.CreateStoreRequest(key, value));
+            var response = await _client.GetAsync(DhtClientHelpers.CreateGetRequest(key));
 
             Log(response, value);
         }

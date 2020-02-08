@@ -21,22 +21,23 @@ namespace DistributedHashTable.Services
         private ILogger<ConsistencyService> _logger;
         private NodeIdentifier _identifier;
         private IClusterBrokerService _clusterBrokerService;
+        private HttpClient _httpClient;
 
         public ConsistencyService(ILogger<ConsistencyService> logger, INodeIdentifierFactory factory, IClusterBrokerService clusterBrokerService)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _identifier = factory.Create();
             _clusterBrokerService = clusterBrokerService;
+
+            var httpClientHandler = new HttpClientHandler();
+            httpClientHandler.ServerCertificateCustomValidationCallback =
+                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+            _httpClient = new HttpClient(httpClientHandler);
         }
 
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            // TODO: Init somewhere else!
-            var httpClientHandler = new HttpClientHandler();
-            httpClientHandler.ServerCertificateCustomValidationCallback =
-                HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
-            var httpClient = new HttpClient(httpClientHandler);
-            using var channel = GrpcChannel.ForAddress($"https://dht:5001", new GrpcChannelOptions { HttpClient = httpClient  });
+            using var channel = GrpcChannel.ForAddress($"https://dht:5001", new GrpcChannelOptions { HttpClient = _httpClient });
             var brokerClient = new Broker.Broker.BrokerClient(channel);
             while (!stoppingToken.IsCancellationRequested)
             {

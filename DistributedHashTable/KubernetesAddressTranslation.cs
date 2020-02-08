@@ -37,17 +37,12 @@ namespace DistributedHashTable
             {
                 _logger.LogDebug($"Name: {item.Metadata.Name} Alias: {item.Status.PodIP}");
 
-                if (item.Metadata.Name == podName)
-                {
-                    address = new Address(item.Status.PodIP);
+                address = new Address(item.Status.PodIP);
 
-                    _logicalToAddress[podName] = address;
-
-                    return address;
-                }
+                _logicalToAddress[podName] = address;
             }
 
-            throw new Exception("Pod not found");
+            return _logicalToAddress[podName];
         }
     }
 }

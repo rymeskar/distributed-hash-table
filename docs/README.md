@@ -36,14 +36,16 @@ I have decided to use the following technologies for building this project:
 - [x]  Write tests. 
 - [x]  Get from Azure
 - [x]  Caching on top.
-- [ ]  Figure out how nodes will jump to the system!
-- [ ]  Multiple nodes at start, with linear routing.
-- [ ]  Nodes can be added
+- [x]  Figure out how nodes will jump to the system!
+- [x]  Multiple nodes at start, with linear routing.
+- [x]  Nodes can be added
 - [ ]  Nodes can be deleted
-- [ ]  Improved routing (fingerprint)
 - [ ]  Deploy to Azure
 - [ ]  Easy script to showcase
 - [ ]  Write up. (talk about named services)
+
+- [ ]  Improved routing (fingerprint)
+
 
 
 When I 

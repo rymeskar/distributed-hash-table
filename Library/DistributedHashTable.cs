@@ -38,7 +38,6 @@ namespace Library
         // TODO: fix when remote is out -- force update
         // TODO: cache expiration
         // TODO: liveness cache
-        // TODO: DNS cache prepopulation
         public async Task<DistributedResult> GetAsync(string key)
         {
             (var node, var actualKey) = GetAddressableKey(key);

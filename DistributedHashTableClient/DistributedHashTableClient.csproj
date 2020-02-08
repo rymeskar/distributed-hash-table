@@ -6,6 +6,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="..\DistributedHashTable\DhtClientHelpers.cs" Link="DhtClientHelpers.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.11.2" />
     <PackageReference Include="Grpc.Net.Client" Version="2.26.0" />
     <PackageReference Include="Grpc.Tools" Version="2.26.0">
