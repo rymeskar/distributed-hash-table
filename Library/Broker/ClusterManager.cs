@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-
+using System.Collections.Concurrent;
 
 namespace Library.Broker
 {
@@ -18,7 +18,7 @@ namespace Library.Broker
         public ClusterManager(ILivenessCheck livenessCheck, ILogger<ClusterManager> logger, INodeIdentifierFactory nodeIdentifierFactory)
         {
             _livenessCheck = livenessCheck ?? throw new ArgumentNullException(nameof(livenessCheck));
-            _cluster = new Dictionary<NodeIdentifier, Address>();
+            _cluster = new ConcurrentDictionary<NodeIdentifier, Address>();
             _logger = logger;
             LocalNode = nodeIdentifierFactory.Create();
         }

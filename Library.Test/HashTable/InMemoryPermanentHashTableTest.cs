@@ -6,11 +6,11 @@ using System.Text;
 namespace Library.Test
 {
     [TestFixture]
-    public class InMemoryHashTableTest : HashTableTestBase
+    public class InMemoryPermanentHashTableTest : HashTableTestBase
     {
         public override IHashTable CreateHashTable()
         {
-            return new InMemoryHashTable();
+            return new InMemoryPermanentHashTable();
         }
     }
 }

@@ -10,24 +10,24 @@ namespace Library
 {
     public interface IInMemoryHashTable : IHashTable { }
 
-    public class InMemoryHashTable : IInMemoryHashTable
+    public class InMemoryPermanentHashTable : IInMemoryHashTable
     {
         public IDictionary<string, string> KeyToValue { get; }
 
-        public InMemoryHashTable()
+        public InMemoryPermanentHashTable()
         {
             KeyToValue = new ConcurrentDictionary<string, string>();
         }
 
-        private InMemoryHashTable(ConcurrentDictionary<string, string> keyToValue)
+        private InMemoryPermanentHashTable(ConcurrentDictionary<string, string> keyToValue)
         {
             KeyToValue = keyToValue ?? throw new ArgumentNullException(nameof(keyToValue));
         }
 
-        public static InMemoryHashTable Create(IDictionary<string, string> items)
+        public static InMemoryPermanentHashTable Create(IDictionary<string, string> items)
         {
             var dict = new ConcurrentDictionary<string, string>(items);
-            return new InMemoryHashTable(dict);
+            return new InMemoryPermanentHashTable(dict);
         }
 
         public Task StoreAsync(Key key, string value)

@@ -42,7 +42,7 @@ namespace Library
             await SaveHashTable(hashTable);
         }
 
-        private async Task<InMemoryHashTable> CreateTemporaryHashTable()
+        private async Task<InMemoryPermanentHashTable> CreateTemporaryHashTable()
         {
             try
             {
@@ -50,15 +50,15 @@ namespace Library
                 var text = File.ReadAllText(_fileName);
                 var deserialized = await JsonSerializer.DeserializeAsync<IDictionary<string, string>>(fs);
 
-                return InMemoryHashTable.Create(deserialized);
+                return InMemoryPermanentHashTable.Create(deserialized);
             }
             catch
             {
-                return new InMemoryHashTable();
+                return new InMemoryPermanentHashTable();
             }
         }
 
-        private async Task SaveHashTable(InMemoryHashTable table)
+        private async Task SaveHashTable(InMemoryPermanentHashTable table)
         {
             using var fs = File.Create(_fileName);
             await JsonSerializer.SerializeAsync(fs, table.KeyToValue);

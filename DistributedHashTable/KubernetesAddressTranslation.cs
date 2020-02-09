@@ -1,7 +1,9 @@
 ﻿using k8s;
 using Library;
 using Library.Broker;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -13,21 +15,25 @@ namespace DistributedHashTable
 {
     public class KubernetesAddressTranslation : IAddressTranslation
     {
-        // TODO: add caching!
-        private readonly IKubernetes _kubernetesClient;
-        private readonly IDictionary<string, Address> _logicalToAddress;
-        private readonly ILogger<KubernetesAddressTranslation> _logger;
+        private const string CachePrefix = nameof(KubernetesAddressTranslation);
 
-        public KubernetesAddressTranslation(IKubernetes kubernetesClient, ILogger<KubernetesAddressTranslation> logger)
+        private readonly IKubernetes _kubernetesClient;
+        private readonly ILogger<KubernetesAddressTranslation> _logger;
+        private readonly IOptions<DHTOptions> _options;
+        private readonly IMemoryCache _memoryCache;
+
+        public KubernetesAddressTranslation(IKubernetes kubernetesClient, ILogger<KubernetesAddressTranslation> logger, IOptions<DHTOptions> options, IMemoryCache memoryCache)
         {
             _kubernetesClient = kubernetesClient ?? throw new ArgumentNullException(nameof(kubernetesClient));
-            _logger = logger;
-            _logicalToAddress = new ConcurrentDictionary<string, Address>();
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _options = options ?? throw new ArgumentNullException(nameof(options));
+            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
         }
 
         public async Task<Address> TranslateAsync(string podName)
         {
-            if (_logicalToAddress.TryGetValue(podName, out var address))
+            var key = GetKey(podName);
+            if (_memoryCache.TryGetValue<Address>(key, out var address))
             {
                 return address;
             }
@@ -39,10 +45,12 @@ namespace DistributedHashTable
 
                 address = new Address(item.Status.PodIP);
 
-                _logicalToAddress[podName] = address;
+                _memoryCache.Set(key, address, _options.Value.TranslationCaching);
             }
 
-            return _logicalToAddress[podName];
+            return _memoryCache.Get<Address>(key);
         }
+
+        private static string GetKey(string logicalName) => $"{CachePrefix}_{logicalName}";
     }
 }

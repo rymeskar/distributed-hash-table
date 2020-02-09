@@ -19,14 +19,16 @@ namespace DistributedHashTable
         private readonly IKeySpaceManager _manager;
         private readonly ILogger<KubernetesNodeHashTable> _logger;
         private readonly IAddressTranslation _addressTranslation;
+        private readonly IClusterBrokerService _clusterBrokerService;
         private HttpClient _httpClient;
 
-        public KubernetesNodeHashTable(IKeySpaceHash hasher, IKeySpaceManager manager, IAddressTranslation addressTranslation, ILogger<KubernetesNodeHashTable> logger)
+        public KubernetesNodeHashTable(IKeySpaceHash hasher, IKeySpaceManager manager, IAddressTranslation addressTranslation, ILogger<KubernetesNodeHashTable> logger, IClusterBrokerService brokerService)
         {
             _hasher = hasher ?? throw new ArgumentNullException(nameof(hasher));
             _manager = manager ?? throw new ArgumentNullException(nameof(manager));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _addressTranslation = addressTranslation ?? throw new ArgumentNullException(nameof(addressTranslation));
+            _clusterBrokerService = brokerService;
 
             var httpClientHandler = new HttpClientHandler();
             httpClientHandler.ServerCertificateCustomValidationCallback =
@@ -36,13 +38,24 @@ namespace DistributedHashTable
 
         public async Task<DistributedResult> GetAsync(string key)
         {
-            (var node, var address) = await GetAddress(key);
-            using var channel = GrpcChannel.ForAddress($"https://{address.NetworkAddress}:5001", new GrpcChannelOptions { HttpClient = _httpClient });
-            var dhtClient = new HashTable.HashTableClient(channel);
-            
-            var response = await dhtClient.GetAsync(DhtClientHelpers.CreateGetRequest(key));
+            NodeIdentifier node = null;
+            Address address = null;
+            try
+            {
+                (node, address) = await GetAddress(key);
+                using var channel = GrpcChannel.ForAddress($"https://{address.NetworkAddress}:5001", new GrpcChannelOptions { HttpClient = _httpClient });
+                var dhtClient = new HashTable.HashTableClient(channel);
 
-            return new DistributedResult(GetResult(response), node);
+                var response = await dhtClient.GetAsync(DhtClientHelpers.CreateGetRequest(key));
+
+                return new DistributedResult(GetResult(response), node);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Did not receive response from node {node} and {address}.");
+                await _clusterBrokerService.KeepUpToDate();
+                throw;
+            }
         }
 
         public Task<NodeIdentifier> RemoveAsync(string key)
@@ -52,13 +65,24 @@ namespace DistributedHashTable
 
         public async Task<NodeIdentifier> StoreAsync(string key, string value)
         {
-            (var node, var address) = await GetAddress(key);
-            using var channel = GrpcChannel.ForAddress($"https://{address.NetworkAddress}:5001", new GrpcChannelOptions { HttpClient = _httpClient });
-            var dhtClient = new HashTable.HashTableClient(channel);
+            NodeIdentifier node = null;
+            Address address = null;
+            try
+            {
+                (node, address) = await GetAddress(key);
+                using var channel = GrpcChannel.ForAddress($"https://{address.NetworkAddress}:5001", new GrpcChannelOptions { HttpClient = _httpClient });
+                var dhtClient = new HashTable.HashTableClient(channel);
 
-            var response = await dhtClient.StoreAsync(DhtClientHelpers.CreateStoreRequest(key, value));
+                var response = await dhtClient.StoreAsync(DhtClientHelpers.CreateStoreRequest(key, value));
 
-            return node;
+                return node;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Did not receive response from node {node} and {address}.");
+                await _clusterBrokerService.KeepUpToDate();
+                throw;
+            }
         }
 
         private async Task<(NodeIdentifier, Address)> GetAddress(string key)

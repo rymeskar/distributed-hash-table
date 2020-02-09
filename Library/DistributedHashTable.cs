@@ -35,51 +35,60 @@ namespace Library
             _currentNode = nodeIdentifierFactory.Create();
         }
 
-        // TODO: fix when remote is out -- force update
-        // TODO: cache expiration
-        // TODO: liveness cache
         public async Task<DistributedResult> GetAsync(string key)
         {
             (var node, var actualKey) = GetAddressableKey(key);
 
-            if (CanHandle(node))
+            Result result;
+            if (!CanHandle(node))
             {
-                Result retVal;
                 try
                 {
-                    retVal = await _inMemoryHashTable.GetAsync(actualKey);
+                    var retVal = await _remoteNodeHashTable.GetAsync(key);
+                    _logger.LogInformation($"{key} retrieved from {retVal.Node}");
+                    return retVal;
                 }
-                catch (KeyNotFoundException)
+                catch (Exception ex)
                 {
-                    retVal = await _backupHashTable.GetAsync(actualKey);
-                    await _inMemoryHashTable.StoreAsync(actualKey, retVal.Value);
+                    _logger.LogError(ex, $"{key} could not be retrieved from remote");
                 }
-
-                _logger.LogInformation($"{key} retrieved from {retVal.MemorySource}.");
-
-                return new DistributedResult(retVal, node);
             }
-            else
+
+            try
             {
-                var retVal = await _remoteNodeHashTable.GetAsync(key);
-                _logger.LogInformation($"{key} retrieved from {retVal.Node}");
-                return retVal;
+                result = await _inMemoryHashTable.GetAsync(actualKey);
             }
+            catch (KeyNotFoundException)
+            {
+                result = await _backupHashTable.GetAsync(actualKey);
+                await _inMemoryHashTable.StoreAsync(actualKey, result.Value);
+            }
+
+            _logger.LogInformation($"{key} retrieved from {result.MemorySource}.");
+
+            return new DistributedResult(result, node);
         }
 
         public async Task<NodeIdentifier> RemoveAsync(string key)
         {
             (var node, var actualKey) = GetAddressableKey(key);
-            if (CanHandle(node))
+
+            if (!CanHandle(node))
             {
-                // TODO: need to ensure atomicity of the below two requests.
-                await _backupHashTable.RemoveAsync(actualKey);
-                await _inMemoryHashTable.RemoveAsync(actualKey);
+                try
+                { 
+                    var handlingNode = await _remoteNodeHashTable.RemoveAsync(key);
+                    return handlingNode;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"{key} could not be removed from remote");
+                }
             }
-            else
-            {
-                await _remoteNodeHashTable.RemoveAsync(key);
-            }
+
+            var backupTask = _backupHashTable.RemoveAsync(actualKey);
+            await _inMemoryHashTable.RemoveAsync(actualKey);
+            await backupTask;
 
             return node;
         }
@@ -88,16 +97,24 @@ namespace Library
         {
             (var node, var actualKey) = GetAddressableKey(key);
 
-            if (CanHandle(node))
+            if (!CanHandle(node))
             {
-                // TODO: need to ensure atomicity of the below two requests.
-                _backupHashTable.StoreAsync(actualKey, value);
-                await _inMemoryHashTable.StoreAsync(actualKey, value);
+                try
+                { 
+                    var handlingNode = await _remoteNodeHashTable.StoreAsync(key, value);
+                    return handlingNode;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, $"{key} could not be stored on remote");
+                }
+
             }
-            else
-            {
-                await _remoteNodeHashTable.StoreAsync(key, value);
-            }
+
+            // TODO: should also ensure atomicity for backup/inMemory!
+            var backupTask = _backupHashTable.StoreAsync(actualKey, value);
+            await _inMemoryHashTable.StoreAsync(actualKey, value);
+            await backupTask;
 
             return node;
         }
