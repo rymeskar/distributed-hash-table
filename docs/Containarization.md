@@ -130,10 +130,10 @@ Restart pods afterwards.
 
 ## Authentication and Authorization
 Current recommendation is to use RBAC for authorization.
-k8s folder containc rbac and role-binding configs.
+k8s folder contains rbac and role-binding configs.
 Great to find out who is in the current context `kubectl config view`.
 Also, one can evaluate his/her permissions `kubectl auth can-i get pods --as system:anonymous`.
-
+RoleBindings are namespaced as well!
 ## Future Readings
 [Helm](https://helm.sh/) helps you manage Kubernetes applications — Helm Charts help you define, install, and upgrade even the most complex Kubernetes application.
 

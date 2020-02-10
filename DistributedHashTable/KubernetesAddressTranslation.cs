@@ -46,7 +46,12 @@ namespace DistributedHashTable
             { 
                 var config = KubeConfigHelper.GetConfig();
                 _logger.LogError(JsonSerializer.Serialize(config));
-                _logger.LogError(JsonSerializer.Serialize(exc));
+                _logger.LogError("-----------REQUEST-----------");
+                _logger.LogError(JsonSerializer.Serialize(exc.Request.Headers));
+                _logger.LogError(exc.Request.Content);
+                _logger.LogError("-----------RESPONSE-----------");
+                _logger.LogError(exc.Response.Content);
+                _logger.LogError(exc.Response.ReasonPhrase);
                 throw;
             }
 

@@ -30,7 +30,7 @@ I have decided to use the following technologies for building this project:
 
 ## Repo Structure
 * DistributedHashTable - actual application with gRPS services as well as dependency on kubernetes. Contains dockerfile and can be packaged as a Linux container.
-* DistributedHashTableClient - console application containing gRPC client to communicate with the cluster. Also contains manager that keeps tracks of keyspace partitioning.
+* DistributedHashTableClient - console application containing gRPC client to communicate with the cluster. Also contains manager that keeps tracks of keyspace partitioning. The cli takes uri or port (then localhost) as first and only argument. 
 * docs - contains documentation and findings during the development of this project.
 * k8s - kubernetes configuration files.
 * Library - contains the basic constructs of distributed hash table cluster. All the components are build in a pluggable way (interfaces and dependency injection). This library does not directly depend on neither kubernetes nor gRPC. In orderd to implement the Chord algoritm, one can just change the discovery of new nodes and keeping track of current cluster structure.
