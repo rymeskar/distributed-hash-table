@@ -29,7 +29,7 @@ namespace DistributedHashTable
 
         public void ConfigureKubernetes(IServiceCollection services)
         {
-            services.AddSingleton<IKubernetes>(new Kubernetes(KubernetesClientConfiguration.BuildDefaultConfig()));
+            services.AddSingleton<IKubernetes>(new Kubernetes(KubeConfigHelper.GetConfig()));
             services.AddSingleton<IAddressTranslation, KubernetesAddressTranslation>();
             services.AddSingleton<ILivenessCheck, KubernetesLivenessCheck>();
             services.AddSingleton<IRemoteNodeHashTable, KubernetesNodeHashTable>();

@@ -21,7 +21,6 @@ namespace DistributedHashTable
 
         public override Task<HelloReply> SayHello(HelloRequest request, ServerCallContext context)
         {
-            _logger.LogInformation("Goodbye");
             return Task.FromResult(new HelloReply
             {
                 Message = $"Hello {context.Peer} from {_identifier.Name}"

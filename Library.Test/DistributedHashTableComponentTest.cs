@@ -1,5 +1,8 @@
 ﻿using Library.KeySpace;
+using Library.Model;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Moq;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
@@ -11,8 +14,8 @@ namespace Library.Test
     [TestFixture]
     public class DistributedHashTableComponentTest
     {
-        protected string Key = "123";
-        protected string Value = "1";
+        protected string KeyFactory() => Guid.NewGuid().ToString();
+        protected string Value = Guid.NewGuid().ToString();
 
 
         // TODO: More complext behavior unit test!
@@ -20,9 +23,10 @@ namespace Library.Test
         [Test]
         public void ThrowCases()
         {
+            var key = KeyFactory();
             var hashTable = CreateHashTable();
-            Assert.ThrowsAsync<KeyNotFoundException>(() => hashTable.GetAsync(Key));
-            Assert.DoesNotThrow(() => hashTable.RemoveAsync(Key));
+            Assert.ThrowsAsync<KeyNotFoundException>(() => hashTable.GetAsync(key));
+            Assert.DoesNotThrow(() => hashTable.RemoveAsync(key));
         }
 
         [Test]
@@ -30,17 +34,20 @@ namespace Library.Test
         {
             var hashTable = CreateHashTable();
 
-            await hashTable.StoreAsync(Key, Value);
-            var value = await hashTable.GetAsync(Key);
+            var key = KeyFactory();
+            await hashTable.StoreAsync(key, Value);
+            var value = await hashTable.GetAsync(key);
             Assert.AreEqual(Value, value.Result.Value);
-            await hashTable.RemoveAsync(Key);
-            Assert.ThrowsAsync<KeyNotFoundException>(() => hashTable.GetAsync(Key));
+            await hashTable.RemoveAsync(key);
+            Assert.ThrowsAsync<KeyNotFoundException>(() => hashTable.GetAsync(key));
         }
 
         public IDistributedHashTable CreateHashTable()
         {
             var di = new ServiceCollection();
             di.AddDistributedHashTable();
+            di.AddSingleton(Mock.Of<IRemoteNodeHashTable>());
+            di.AddLogging(builder => builder.AddConsole());
             return di.BuildServiceProvider().GetService<IDistributedHashTable>();
         }
     }

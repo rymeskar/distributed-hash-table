@@ -25,6 +25,7 @@ namespace Library
         public RemoteHashTable()
         {
             // TODO: better
+            _ = DateTimeOffset.UtcNow;
             var cosmosClient = new CosmosClient("AccountEndpoint=https://hash-table-sql.documents.azure.com:443/;AccountKey=4Ul5DBQhAsr48BceNFNfrxzUYcwMLUmMumbXDSbllIejaeKKB6EJ2dY1c1STv1paOBUwPYBBiB9sNU7HPieUuA==;");
             _container = cosmosClient.GetContainer("hash-table", "hash-table");
         }

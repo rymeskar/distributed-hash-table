@@ -1,14 +1,17 @@
 ﻿using k8s;
+using k8s.Models;
 using Library;
 using Library.Broker;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.Rest;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace DistributedHashTable
@@ -37,15 +40,28 @@ namespace DistributedHashTable
             {
                 return address;
             }
-            var list = await _kubernetesClient.ListNamespacedPodAsync("dht");
+            
+            V1PodList list;
+            try
+            {
+                 list = await _kubernetesClient.ListNamespacedPodAsync("dht");
+            }
+            catch (HttpOperationException exc)
+            { 
+                var config = KubeConfigHelper.GetConfig();
+                _logger.LogError(JsonSerializer.Serialize(config));
+                _logger.LogError(JsonSerializer.Serialize(exc));
+                throw;
+            }
 
             foreach (var item in list.Items)
             {
                 _logger.LogDebug($"Name: {item.Metadata.Name} Alias: {item.Status.PodIP}");
 
+                var podKey = GetKey(item.Metadata.Name);
                 address = new Address(item.Status.PodIP);
 
-                _memoryCache.Set(key, address, _options.Value.TranslationCaching);
+                _memoryCache.Set(podKey, address, _options.Value.TranslationCaching);
             }
 
             return _memoryCache.Get<Address>(key);

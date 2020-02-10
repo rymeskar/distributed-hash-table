@@ -39,7 +39,7 @@ namespace DistributedHashTable
                 using var pingChannel = GrpcChannel.ForAddress($"https://{address.NetworkAddress}:5001", new GrpcChannelOptions { HttpClient = _httpClient });
                 var pingClinet = new Greeter.GreeterClient(pingChannel);
                 var pingResponse = await pingClinet.SayHelloAsync(new HelloRequest());
-                _logger.LogInformation($"I am {_identifier.Name} and got ping back with message\"{pingResponse.Message}\"");
+                _logger.LogDebug($"I am {_identifier.Name} and got ping back with message\"{pingResponse.Message}\"");
 
                 return true;
             }

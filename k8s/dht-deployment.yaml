@@ -6,7 +6,7 @@ metadata:
   name: dht
   namespace: dht
 spec:
-  replicas: 3
+  replicas: 5
   selector:
     matchLabels:
       app: dht
@@ -16,8 +16,8 @@ spec:
         app: dht
     spec:
       containers:
-      - image: dht_server:latest
-        imagePullPolicy: Never
+      - image: dsvacr.azurecr.io/dht_server:latest
+        imagePullPolicy: Always
         name: dht
         env:
         - name: ASPNETCORE_Kestrel__Certificates__Default__Path

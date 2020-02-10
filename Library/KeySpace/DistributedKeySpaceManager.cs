@@ -17,6 +17,18 @@ namespace Library.KeySpace
             _orderedList.Add(nodeIdentifier);
         }
 
+        private DistributedKeySpaceManager(SortedSet<NodeIdentifier> orderedList)
+        {
+            _orderedList = orderedList ?? throw new ArgumentNullException(nameof(orderedList));
+        }
+
+        public static DistributedKeySpaceManager Create(List<NodeIdentifier> list)
+        {
+            var orderedList = new SortedSet<NodeIdentifier>(new NodeIdentifierComparer());
+            list.ForEach(n => orderedList.Add(n));
+            return new DistributedKeySpaceManager(orderedList);
+        }
+
         public void AddNode(NodeIdentifier node)
         {
             _orderedList.Add(node);

@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
 using DistributedHashTable.DHT;
+using Library;
+using k8s;
 
 namespace DistributedHashTableClient
 {
@@ -20,7 +22,11 @@ namespace DistributedHashTableClient
                 HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
             var httpClient = new HttpClient(httpClientHandler);
 
-            using var channel = GrpcChannel.ForAddress($"https://localhost:{args[0]}", new GrpcChannelOptions { HttpClient = httpClient });
+            if (!Uri.TryCreate(args[0], UriKind.Absolute, out var address))
+            {
+                address = new Uri($"https://localhost:{args[0]}");
+            }
+            using var channel = GrpcChannel.ForAddress(address, new GrpcChannelOptions { HttpClient = httpClient });
             var client = new Greeter.GreeterClient(channel);
             var reply = await client.SayHelloAsync(new HelloRequest { Name = "Karel" });
             Console.WriteLine("Greeting: " + reply.Message);
@@ -30,6 +36,11 @@ namespace DistributedHashTableClient
             serviceCollection.AddLogging(builder => builder.AddConsole());
             serviceCollection.AddSingleton(dhtClient);
             serviceCollection.AddSingleton<DHTFunctionalTest>();
+            serviceCollection.AddDistributedHashTable();
+
+            serviceCollection.AddSingleton<IKubernetes>(new Kubernetes(KubernetesClientConfiguration.BuildDefaultConfig()));
+            serviceCollection.AddSingleton<KubernetesState>();
+
             var serviceProvider = serviceCollection.BuildServiceProvider();
             var funcTest = serviceProvider.GetService<DHTFunctionalTest>();
             

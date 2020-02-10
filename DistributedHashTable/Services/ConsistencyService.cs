@@ -7,6 +7,7 @@ using Library.Broker;
 using Library.Model;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,13 +22,15 @@ namespace DistributedHashTable.Services
         private ILogger<ConsistencyService> _logger;
         private NodeIdentifier _identifier;
         private IClusterBrokerService _clusterBrokerService;
+        private IOptions<DHTOptions> _options;
         private HttpClient _httpClient;
 
-        public ConsistencyService(ILogger<ConsistencyService> logger, INodeIdentifierFactory factory, IClusterBrokerService clusterBrokerService)
+        public ConsistencyService(ILogger<ConsistencyService> logger, INodeIdentifierFactory factory, IClusterBrokerService clusterBrokerService, IOptions<DHTOptions> options)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _identifier = factory.Create();
             _clusterBrokerService = clusterBrokerService;
+            _options = options;
 
             var httpClientHandler = new HttpClientHandler();
             httpClientHandler.ServerCertificateCustomValidationCallback =
@@ -43,10 +46,10 @@ namespace DistributedHashTable.Services
             {
                 try
                 {
+                    ////await _clusterBrokerService.TryAddNode(new NodeIdentifier("a", new KeySpaceHash().Hash("a")));
                     await _clusterBrokerService.KeepUpToDate();
 
                     var response = await brokerClient.PingAsync(GetSystemInfo());
-                    _logger.LogInformation($"I am {_identifier.Name} and got response by {response.Identifier}");
                     
                     if (await _clusterBrokerService.TryAddNode(GetNode(response)))
                     {
@@ -58,7 +61,7 @@ namespace DistributedHashTable.Services
                     _logger.LogError(e, "Did not receive pong.");
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(10));
+                await Task.Delay(_options.Value.ConsistencyPeriod);
             }
         }
 
